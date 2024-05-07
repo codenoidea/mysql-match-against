@@ -1,0 +1,20 @@
+
+# 먼저 aws rds 파라미터그룹 ft_min_word_len, innodb_ft_min_token_size 값 2로 변경 재부팅
+show variables like '%ft_min%';
+
+
+# index 확인
+SHOW INDEX FROM games;
+# 컬럼 내에 데이터를 검색하려면 해당 컬럼을 fulltext로 설정을 해줘야 한다
+alter table games add fulltext (genre);
+# 설정 후 해당테이블 적용
+OPTIMIZE TABLE games;
+
+# genre 입력
+insert into games (id, genre) values (1, '전략,퍼즐,캐주얼,시뮬레이션,RPG')
+# genre 조회
+select * from games where MATCH(genre) AGAINST('+RPG' in boolean mode);
+# genre 제외조회
+select * from games where MATCH(genre) AGAINST('-RPG' in boolean mode);
+# genre 에 RPG가 포함되어있고, 전략이 없는 데이터 조회
+select * from games where MATCH(genre) AGAINST('+RPG -전략' in boolean mode);
